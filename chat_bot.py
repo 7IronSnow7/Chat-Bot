@@ -1,1 +1,73 @@
+# import openai
+# import streamlit as st
+
+# st.title("Ace")
+
+# openai.api_key = st.secrets["ACE"]
+
+# if "openai_model" not in st.session_state:
+#     st.session_state["openai_model"] = "gpt-3.5-turbo"
+    
+# # Chat History
+# if "messages" not in st.session_state:
+#     st.session_state.messages = []
+
+# # Display chat messages from history on app rerun
+# for message in st.session_state.messages:
+#     with st.chat_message(message["role"]):
+#         st.markdown(message["content"])
+        
+# # React to user input
+# prompt = st.chat_input("Hello!")
+# if prompt:
+#     # Display user message
+#     with st.chat_message("user"):
+#         st.markdown(prompt)
+#     # Add user message to history
+#     st.session_state.messages.append({"role": "user", "content": prompt})
+    
+#     with st.chat_message("assistant"):
+#         message_placeholder = st.empty
+#         full_response = ""
+        
+#         for response in openai.ChatCompletion.create(
+#             model=st.session_state["openai_model"],
+#             messages=[
+#                 {"role": m["role"], "content": m["content"]}
+#                 for m in st.session_state.messages
+#             ],
+#             stream=True
+#         ):
+        
+#             full_response += response.choices[0].delta.get("content", "")
+#             message_placeholder.markdown(full_response + "| ")
+            
+#         message_placeholder.markdown(full_response)
+#     st.session.messages.append({"role": "assistant", "content": full_response})
+
 import streamlit as st
+from openai import OpenAI
+
+st.title("Wish me luck")
+client = OpenAI(api_key=st.secrets["ACE"])
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+        
+prompt = st.chat_input("Say something")
+if prompt:
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=st.session_state.messages
+    ).choices[0].message.content
+    with st.chat_message("assistant"):
+        st.markdown(response)
+    st.session_state.messages.append({"role": "assisstant", "content": response})
